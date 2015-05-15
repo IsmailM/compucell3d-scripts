@@ -1,0 +1,5 @@
+<Simulation version="3.6.2">
+   <XMLScript Type="XMLScript">Simulation/cell_mixing.xml</XMLScript>
+   <PythonScript Type="PythonScript">Simulation/cell_mixing.py</PythonScript>
+   <Resource Type="Python">Simulation/cell_mixingSteppables.py</Resource>
+</Simulation>

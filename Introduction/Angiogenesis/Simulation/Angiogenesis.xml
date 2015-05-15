@@ -1,0 +1,111 @@
+<CompuCell3D Revision="20141124" Version="3.7.3">
+   
+   <Potts>
+      
+      <!-- Basic properties of CPM (GGH) algorithm -->
+      <Dimensions x="50" y="50" z="50"/>
+      <Steps>10000</Steps>
+      <Temperature>20.0</Temperature>
+      <NeighborOrder>3</NeighborOrder>
+   </Potts>
+   
+   <Plugin Name="CellType">
+      
+      <!-- Listing all cell types in the simulation -->
+      <CellType TypeId="0" TypeName="Medium"/>
+      <CellType TypeId="1" TypeName="Endothelial"/>
+   </Plugin>
+   
+   <Plugin Name="Volume">
+      <VolumeEnergyParameters CellType="Endothelial" LambdaVolume="20.0" TargetVolume="74"/>
+   </Plugin>
+   
+   <Plugin Name="CenterOfMass">
+      
+      <!-- Module tracking center of mass of each cell -->
+   </Plugin>
+   
+   <Plugin Name="Contact">
+      <!-- Specification of adhesion energies -->
+      <Energy Type1="Medium" Type2="Medium">0.0</Energy>
+      <Energy Type1="Medium" Type2="Endothelial">12.0</Energy>
+      <Energy Type1="Endothelial" Type2="Endothelial">5.0</Energy>
+      <NeighborOrder>4</NeighborOrder>
+   </Plugin>
+   
+   <Plugin Name="Chemotaxis">
+      
+      <!-- You may repeat ChemicalField element for each chemical field declared in the PDE solvers -->
+      <!-- Specification of chemotaxis properties of select cell types. -->
+      <ChemicalField Name="VEGF" Source="FlexibleDiffusionSolverFE">
+         <ChemotaxisByType ChemotactTowards="Medium" Lambda="5000.0" Type="Endothelial"/>
+      </ChemicalField>
+   </Plugin>
+   
+   <Plugin Name="Secretion">
+      
+      <!-- Specification of secretion properties of select cell types. -->
+      <!-- You may repeat Field element for each chemical field declared in the PDE solvers -->
+      <!-- Specification of secretion properties of individual cells can be done in Python -->
+      <Field Name="VEGF">
+         <Secretion Type="Endothelial">0.013</Secretion>
+      </Field>
+   </Plugin>
+   
+   <Steppable Type="FlexibleDiffusionSolverFE">
+      
+      <!-- Specification of PDE solvers -->
+      <DiffusionField Name="VEGF">
+         <DiffusionData>
+            <FieldName>VEGF</FieldName>
+            <DiffusionConstant>0.16</DiffusionConstant>
+            <DecayConstant>0.016</DecayConstant>
+            <!-- Additional options are: -->
+            <!-- <DoNotDiffuseTo>LIST YOUR CELL TYPES HERE</DoNotDiffuseTo> -->
+            <DoNotDecayIn>Endothelial</DoNotDecayIn>
+            <!-- <InitialConcentrationExpression>x*y</InitialConcentrationExpression> -->
+            <!-- <ConcentrationFileName>INITIAL CONCENTRATION FIELD - typically a file with path Simulation/NAME_OF_THE_FILE.txt</ConcentrationFileName> -->
+            <!-- To run solver for large diffusion constants you typically call solver multiple times - ExtraTimesPerMCS to specify additional calls to the solver in each MCS  -->
+            <!-- IMPORTANT: make sure not to mix this setting with the PDESolverCaller module! See manual for more information -->
+            <!-- <ExtraTimesPerMCS>0</ExtraTimesPerMCS> -->
+            <!-- <DeltaX>1.0</DeltaX> -->
+            <!-- <DeltaT>1.0</DeltaT> -->
+         </DiffusionData>
+         <BoundaryConditions>
+            <Plane Axis="X">
+               <ConstantValue PlanePosition="Min" Value="10.0"/>
+               <ConstantValue PlanePosition="Max" Value="5.0"/>
+               <!-- Other options are (examples): -->
+               <!-- <Periodic/> -->
+               <!-- <ConstantDerivative PlanePosition="Min" Value="10.0"/> -->
+            </Plane>
+            <Plane Axis="Y">
+               <ConstantDerivative PlanePosition="Min" Value="10.0"/>
+               <ConstantDerivative PlanePosition="Max" Value="5.0"/>
+               <!-- Other options are (examples): -->
+               <!-- <Periodic/> -->
+               <!-- <ConstantValue PlanePosition="Min" Value="10.0"/> -->
+            </Plane>
+            <Plane Axis="Z">
+               <ConstantDerivative PlanePosition="Min" Value="10.0"/>
+               <ConstantDerivative PlanePosition="Max" Value="5.0"/>
+               <!-- Other options are (examples): -->
+               <!-- <Periodic/> -->
+               <!-- <ConstantValue PlanePosition="Min" Value="10.0"/> -->
+            </Plane>
+         </BoundaryConditions>
+      </DiffusionField>
+   </Steppable>
+   
+   <Steppable Type="BlobInitializer">
+      
+      <!-- Initial layout of cells in the form of rectangular slab -->
+      <Region>
+         <Center x="25" y="25" z="25" />
+         <Radius>10</Radius>
+         <Gap>0</Gap>
+         <Width>4</Width>
+         <Types>Endothelial</Types>
+      </Region>
+   </Steppable>
+</CompuCell3D>
