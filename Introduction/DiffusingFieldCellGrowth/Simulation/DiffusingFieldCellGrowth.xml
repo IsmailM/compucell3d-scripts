@@ -1,0 +1,90 @@
+<CompuCell3D Revision="20141124" Version="3.7.3">
+
+   <Potts>
+
+      <!-- Basic properties of CPM (GGH) algorithm -->
+      <Dimensions x="200" y="200" z="1"/>
+      <Steps>3000</Steps>
+      <Temperature>10.0</Temperature>
+      <NeighborOrder>2</NeighborOrder>
+  </Potts>
+
+  <Plugin Name="CellType">
+
+      <!-- Listing all cell types in the simulation -->
+      <CellType TypeId="0" TypeName="Medium"/>
+      <CellType TypeId="1" TypeName="Condensing"/>
+      <CellType TypeId="2" TypeName="NonCondensing"/>
+      <CellType TypeId="3" TypeName="DifferentiatedCondensing"/>
+  </Plugin>
+
+  <Plugin Name="Volume">
+      <!-- handled within the python script -->
+  </Plugin>
+
+  <Plugin Name="CenterOfMass">
+
+      <!-- Module tracking center of mass of each cell -->
+  </Plugin>
+
+  <Plugin Name="Contact">
+      <!-- Specification of adhesion energies -->
+      <Energy Type1="Medium" Type2="Medium">0.0</Energy>
+      <Energy Type1="Medium" Type2="Condensing">16.0</Energy>
+      <Energy Type1="Medium" Type2="NonCondensing">16.0</Energy>
+      <Energy Type1="Medium" Type2="DifferentiatedCondensing">16.0</Energy>
+      <Energy Type1="Condensing" Type2="Condensing">2.0</Energy>
+      <Energy Type1="Condensing" Type2="NonCondensing">11.0</Energy>
+      <Energy Type1="Condensing" Type2="DifferentiatedCondensing">2.0</Energy>
+      <Energy Type1="NonCondensing" Type2="NonCondensing">15.0</Energy>
+      <Energy Type1="NonCondensing" Type2="DifferentiatedCondensing">11.0</Energy>
+      <Energy Type1="DifferentiatedCondensing" Type2="DifferentiatedCondensing">2.0</Energy>
+      <NeighborOrder>2</NeighborOrder>
+  </Plugin>
+
+  <Steppable Type="DiffusionSolverFE">
+
+      <!-- Specification of PDE solvers -->
+      <DiffusionField Name="FGF">
+         <DiffusionData>
+            <FieldName>FGF</FieldName>
+            <GlobalDiffusionConstant>0.1</GlobalDiffusionConstant>
+            <GlobalDecayConstant>5e-05</GlobalDecayConstant>
+
+        </DiffusionData>
+        <SecretionData>
+
+            <Secretion Type="NonCondensing">0.05</Secretion>
+
+        </SecretionData>
+        <BoundaryConditions>
+            <Plane Axis="X">
+               <ConstantValue PlanePosition="Min" Value="0.0"/>
+               <ConstantValue PlanePosition="Max" Value="0.0"/>
+               <!-- Other options are (examples): -->
+               <!-- <Periodic/> -->
+               <!-- <ConstantDerivative PlanePosition="Min" Value="10.0"/> -->
+           </Plane>
+           <Plane Axis="Y">
+               <ConstantDerivative PlanePosition="Min" Value="0.0"/>
+               <ConstantDerivative PlanePosition="Max" Value="0.0"/>
+               <!-- Other options are (examples): -->
+               <!-- <Periodic/> -->
+               <!-- <ConstantValue PlanePosition="Min" Value="10.0"/> -->
+           </Plane>
+       </BoundaryConditions>
+   </DiffusionField>
+</Steppable>
+
+<Steppable Type="UniformInitializer">
+
+  <!-- Initial layout of cells in the form of rectangular slab -->
+  <Region>
+     <BoxMin x="40" y="40" z="0"/>
+     <BoxMax x="160" y="160" z="1"/>
+     <Gap>0</Gap>
+     <Width>5</Width>
+     <Types>Condensing,NonCondensing,DifferentiatedCondensing</Types>
+ </Region>
+</Steppable>
+</CompuCell3D>
