@@ -47,9 +47,8 @@ class ConstraintInitializerSteppable(SteppableBasePy):
 
                 # use the point to get the concentration at this location
                 conc = field.get(comPt)
-                cell.targetVolume += 0.1*conc
-
-
+                cell.targetVolume += 0.1 * conc
+                
     def finish(self):
         pass
 
@@ -117,8 +116,15 @@ class MitosisDataPrinterSteppable(SteppableBasePy):
     def step(self, mcs):
         for cell in self.cellList:
             dataList = CompuCell.getPyAttrib(cell)
-            if len(dataList)>0:
+            if len(dataList['relatives'])>0:
                 print "MITOTIC DATA FOR CELL ID:",cell.id
-                for data in dataList:
+                for data in dataList['relatives']:
+                    print data
+    def finish(self):
+        for cell in self.cellList:
+            dataList = CompuCell.getPyAttrib(cell)
+            if len(dataList['relatives'])>0:
+                print "MITOTIC DATA FOR CELL ID:",cell.id
+                for data in dataList['relatives']:
                     print data
 
