@@ -1,0 +1,5 @@
+<Simulation version="3.6.2">
+   <XMLScript Type="XMLScript">Simulation/Nebula.xml</XMLScript>
+   <PythonScript Type="PythonScript">Simulation/Nebula.py</PythonScript>
+   <Resource Type="Python">Simulation/NebulaSteppables.py</Resource>
+</Simulation>
