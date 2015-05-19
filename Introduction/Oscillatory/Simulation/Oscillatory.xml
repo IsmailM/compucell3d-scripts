@@ -1,0 +1,52 @@
+<CompuCell3D Revision="20141124" Version="3.7.3">
+   
+   <Potts>
+      
+      <!-- Basic properties of CPM (GGH) algorithm -->
+      <Dimensions x="100" y="100" z="1"/>
+      <Steps>10000</Steps>
+      <Temperature>20.0</Temperature>
+      <NeighborOrder>2</NeighborOrder>
+   </Potts>
+   
+   <Plugin Name="CellType">
+      
+      <!-- Listing all cell types in the simulation -->
+      <CellType TypeId="0" TypeName="Medium"/>
+      <CellType TypeId="1" TypeName="CONDENSING"/>
+      <CellType TypeId="2" TypeName="NONCONDENSING"/>
+   </Plugin>
+   
+   <Plugin Name="Volume">
+      <VolumeEnergyParameters CellType="CONDENSING" LambdaVolume="2.0" TargetVolume="25"/>
+      <VolumeEnergyParameters CellType="NONCONDENSING" LambdaVolume="2.0" TargetVolume="25"/>
+   </Plugin>
+   
+   <Plugin Name="CenterOfMass">
+      
+      <!-- Module tracking center of mass of each cell -->
+   </Plugin>
+   
+   <Plugin Name="Contact">
+      <!-- Specification of adhesion energies -->
+      <Energy Type1="Medium" Type2="Medium">10.0</Energy>
+      <Energy Type1="Medium" Type2="CONDENSING">16.0</Energy>
+      <Energy Type1="Medium" Type2="NONCONDENSING">16.0</Energy>
+      <Energy Type1="CONDENSING" Type2="CONDENSING">2.0</Energy>
+      <Energy Type1="CONDENSING" Type2="NONCONDENSING">11.0</Energy>
+      <Energy Type1="NONCONDENSING" Type2="NONCONDENSING">16.0</Energy>
+      <NeighborOrder>1</NeighborOrder>
+   </Plugin>
+   
+   <Steppable Type="UniformInitializer">
+      
+      <!-- Initial layout of cells in the form of rectangular slab -->
+      <Region>
+         <BoxMin x="20" y="20" z="0"/>
+         <BoxMax x="80" y="80" z="1"/>
+         <Gap>0</Gap>
+         <Width>4</Width>
+         <Types>CONDENSING,NONCONDENSING</Types>
+      </Region>
+   </Steppable>
+</CompuCell3D>

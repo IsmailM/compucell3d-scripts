@@ -1,0 +1,5 @@
+<Simulation version="3.6.2">
+   <XMLScript Type="XMLScript">Simulation/Oscillatory.xml</XMLScript>
+   <PythonScript Type="PythonScript">Simulation/Oscillatory.py</PythonScript>
+   <Resource Type="Python">Simulation/OscillatorySteppables.py</Resource>
+</Simulation>
