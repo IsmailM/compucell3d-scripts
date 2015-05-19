@@ -1,0 +1,5 @@
+<Simulation version="3.6.2">
+   <XMLScript Type="XMLScript">Simulation/bacterium_macrophage.xml</XMLScript>
+   <PythonScript Type="PythonScript">Simulation/bacterium_macrophage.py</PythonScript>
+   <Resource Type="Python">Simulation/bacterium_macrophageSteppables.py</Resource>
+</Simulation>

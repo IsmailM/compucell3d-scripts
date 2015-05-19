@@ -1,0 +1,100 @@
+<CompuCell3D Revision="20141124" Version="3.7.3">
+   
+   <Potts>
+      
+      <!-- Basic properties of CPM (GGH) algorithm -->
+      <Dimensions x="100" y="100" z="1"/>
+      <Steps>500000</Steps>
+      <Temperature>40.0</Temperature>
+      <NeighborOrder>2</NeighborOrder>
+      <Boundary_x>Periodic</Boundary_x>
+      <Boundary_y>Periodic</Boundary_y>
+   </Potts>
+   
+   <Plugin Name="CellType">
+      
+      <!-- Listing all cell types in the simulation -->
+      <CellType TypeId="0" TypeName="Medium"/>
+      <CellType TypeId="1" TypeName="Bacterium"/>
+      <CellType TypeId="2" TypeName="Macrophage"/>
+      <CellType TypeId="3" TypeName="Red"/>
+   </Plugin>
+   
+   <Plugin Name="Volume">
+      <VolumeEnergyParameters CellType="Bacterium" LambdaVolume="60.0" TargetVolume="100"/>
+      <VolumeEnergyParameters CellType="Macrophage" LambdaVolume="15.0" TargetVolume="150"/>
+      <VolumeEnergyParameters CellType="Red" LambdaVolume="30.0" TargetVolume="100"/>
+   </Plugin>
+   
+   <Plugin Name="Surface">
+      <SurfaceEnergyParameters CellType="Bacterium" LambdaSurface="4.0" TargetSurface="10"/>
+      <SurfaceEnergyParameters CellType="Macrophage" LambdaSurface="20.0" TargetSurface="50"/>
+      <SurfaceEnergyParameters CellType="Red" LambdaSurface="0" TargetSurface="40"/>
+   </Plugin>
+   
+   <Plugin Name="CenterOfMass">
+      
+      <!-- Module tracking center of mass of each cell -->
+   </Plugin>
+   
+   <Plugin Name="Contact">
+      <!-- Specification of adhesion energies -->
+      <Energy Type1="Medium" Type2="Medium">10.0</Energy>
+      <Energy Type1="Medium" Type2="Bacterium">8.0</Energy>
+      <Energy Type1="Medium" Type2="Macrophage">8.0</Energy>
+      <Energy Type1="Medium" Type2="Red">30.0</Energy>
+      <Energy Type1="Bacterium" Type2="Bacterium">150.0</Energy>
+      <Energy Type1="Bacterium" Type2="Macrophage">15.0</Energy>
+      <Energy Type1="Bacterium" Type2="Red">150.0</Energy>
+      <Energy Type1="Macrophage" Type2="Macrophage">150.0</Energy>
+      <Energy Type1="Macrophage" Type2="Red">150.0</Energy>
+      <Energy Type1="Red" Type2="Red">150.0</Energy>
+      <NeighborOrder>2</NeighborOrder>
+   </Plugin>
+   
+   <Plugin Name="Chemotaxis">
+      
+      <!-- You may repeat ChemicalField element for each chemical field declaRed in the PDE solvers -->
+      <!-- Specification of chemotaxis properties of select cell types. -->
+      <ChemicalField Name="ATTR" Source="DiffusionSolverFE">
+         <ChemotaxisByType Lambda="1.0" Type="Macrophage"/>
+      </ChemicalField>
+   </Plugin>
+   
+   
+   <Steppable Type="DiffusionSolverFE">
+      
+      <!-- Specification of PDE solvers -->
+      <DiffusionField Name="ATTR">
+         <DiffusionData>
+            <FieldName>ATTR</FieldName>
+            <GlobalDiffusionConstant>0.1</GlobalDiffusionConstant>
+            <GlobalDecayConstant>1e-05</GlobalDecayConstant>
+            <!-- Additional options are: -->
+            <!-- <InitialConcentrationExpression>x*y</InitialConcentrationExpression> -->
+            <!-- <ConcentrationFileName>INITIAL CONCENTRATION FIELD - typically a file with path Simulation/NAME_OF_THE_FILE.txt</ConcentrationFileName> -->
+            <DiffusionCoefficient CellType="Red">0.0</DiffusionCoefficient>
+
+         </DiffusionData>
+         <SecretionData>
+            <!-- When secretion is defined inside DissufionSolverFEall secretio nconstants are scaled automaticly to account for extra calls of the solver when handling large diffusion constants -->
+            
+            <!-- Uniform secretion Definition -->
+            <Secretion Type="Bacterium">100</Secretion>
+            <!-- <Secretion Type="Macrophage">0.1</Secretion> -->
+         </SecretionData>
+         <BoundaryConditions>
+            <Plane Axis="X">
+               <Periodic />
+            </Plane>
+            <Plane Axis="Y">
+               <Periodic />
+            </Plane>
+         </BoundaryConditions>
+      </DiffusionField>
+   </Steppable>
+   
+   <Steppable Type="PIFInitializer">
+      <PIFName>Simulation/rbc.piff</PIFName>
+   </Steppable>
+</CompuCell3D>
