@@ -7,15 +7,27 @@
 class DivisionTracker:
     def __init__ ( self, fileName = '../divisionTrackerOutput.csv' ):
         self.fileName = fileName
-        
+        self.stash = []
     ## this function saves a division event into the file
     ## in the format: time, parent, child1, child2
-    def saveDivisionInfo ( self , time = 0 , parent = 1 , child1 = 2, child2 = 3 ):
+    def saveDivision ( self , time = 0 , parent = 1 , child1 = 2, child2 = 3 ):
         import csv
         with open ( self.fileName, 'a' ) as f:
             c = csv.writer( f )
             c.writerow( [ time , parent , child1, child2 ] )
 
+    def stashDivision ( self , time = 0 , parent = 1 , child1 = 2, child2 =3 ):
+        self.stash.append( [ time , parent , child1 , child2 ] )
+
+    def saveStash( self ):
+        import csv
+        with open ( self.fileName, 'a' ) as f:
+            c = csv.writer( f )
+            for row in self.stash:
+                c.writerow( row )
+
+    def createLineage( self ):
+        pass
 
     ## this function transfrms the output file
     ## into a newick standard tree format
@@ -187,6 +199,7 @@ class Lineage:
             the individual we are searching for and LR(int) contains if its the first or second
             child or False otherwise
         """
+
         if isinstance( self.sub1 , Individual ):
 
             if self.sub1.id == key or self.sub1.name == key:
@@ -201,17 +214,22 @@ class Lineage:
                 return ( self , self.sub2, 2 )
 
         ## we didn't find the individual, thus we continue searching downward
+        sub1result = False
         if isinstance( self.sub1 , Lineage ):
 
-            return self.sub1.find( key )
+            sub1result = self.sub1.find( key )
 
-        if isinstance( self.sub1 , Lineage ):
+        sub2result = False
+        if isinstance( self.sub2 , Lineage ):
 
-            return self.sub2.find( key )
+            sub2result = self.sub2.find( key )
 
         ## we didn't find the individual even though we checked the subtrees, thus we return False
 
-        return False
+        if not sub1result and not sub2result:
+            return False
+        else:
+            return sub1result or sub2result
 
     def divide ( self , parent , child1 , child2 = None , time = 0 ):
         """
@@ -220,10 +238,9 @@ class Lineage:
 
 
         search = self.find( parent )
-        if search is None:
+        if search is False:
             return False
-
-        container, replaced, lr = search #lineage that contains the parent
+        container, replaced, lr = search  #lineage that contains the parent
         
         if child2 is None:
             child2 = replaced
@@ -239,12 +256,37 @@ class Lineage:
         elif lr == 2: 
             container.sub2 = Lineage( sub1 = child1 , sub2 = child2 , time = time )
 
-
-
     def to_newick ( self ): 
         """
             convert this lineage to the newick standard for representing
             phylogeny for easy use later
         """
         return str(self)+';'
+
+    def save_verbose ( self , format = ('t', 'p', 'c1', 'c2') ):
         pass
+
+
+    @staticmethod
+    def load_file( fileName = None , firstParentId = 1 , format = ('t', 'p', 'c1', 'c2') ):
+        """
+            This method loads a csv file with the given format and converts
+            it into a lineage that can be manipulated or visualized.
+            firstParent is the name of the root
+        """
+
+        import csv
+
+        out = Lineage( sub1 = Individual( firstParentId , name = str( firstParentId ) ) , time = 0, isRoot = True )
+
+        with open( fileName , 'r' ) as f :
+            reader = csv.reader( f )
+            for row in reader:
+                info = dict(zip( format , row ))
+                out.divide( parent = info['p'] , \
+                    child1 = Individual( int( info['c1'] ) , name = info['c1'] ) , \
+                    child2 = Individual( int( info['c2'] ) , name = info['c2'] ) ,\
+                    time = info['t'] )
+        return out
+
+
