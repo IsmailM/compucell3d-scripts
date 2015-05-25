@@ -71,7 +71,7 @@ class Genome:
 			is_mutated
 				returns if a locus or specified annotation is mutated (i.e bit == 1)
 			@params
-				locus: index of generate
+				locus: index of gene
 				name: annotation of the locus (use Genome.annotate to annotate loci)
 				annotation: annotation of the locus (use Genome.annotate to annotate loci)
 			@return
@@ -98,8 +98,39 @@ class GenomeCompare:
 		assert len( genomes ) == 2 , 'GenomeCompare only supports comparisons between two genomes for now '
 		assert isinstance( genomes[0] , Genome ) and isinstance( genomes[1] , Genome ) , 'genomes must contain Genome objects only'
 		
-		genome1 = genomes[0]
-		genome2 = genomes[1]
+		self.g1 = genomes[0]
+		self.g2 = genomes[1]
 
 	def diff( self ):
+		"""
+			returns the number and loci of genes that
+			are unqiue between the two genomes supplied
+			[optional] if diff_map = True then it returns a n*n matrix with 1's 
+			wherever the genes are different
+		"""
+		size = ( self.g1.size + self.g2.size ) / 2
 		
+		g1_mutated = self.g1.get_mutated_loci()
+		g2_mutated = self.g2.get_mutated_loci()
+
+		different_genes = 0
+		different_loci = []
+
+
+		for locus in g1_mutated:
+			if not (locus in g2_mutated):
+				different_genes += 1
+				different_loci.append(locus)
+
+
+		for locus in g2_mutated:
+			if not(locus in g1_mutated) and not(locus in different_loci):
+				different_genes +=1 
+				different_loci.append(locus)
+			
+
+
+		
+		return ( different_genes , different_loci )
+
+
