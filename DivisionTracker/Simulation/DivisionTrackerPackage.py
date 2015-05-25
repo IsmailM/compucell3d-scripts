@@ -80,7 +80,7 @@ class Individual:
 #### MODIFICATIONS BY ZAFARALI AHMED
 class Lineage:
 
-    def __init__ ( self , sub1 = None , sub2 = None, time = 0, isRoot = False ):
+    def __init__ ( self , sub1 = None , sub2 = None , time = 0 , isRoot = False ):
         """
             The lineage class is used to describe ancestral lineages. A lineage 
             either starts from a sample at time 0 (a leaf) or it is the result of the 
@@ -88,37 +88,45 @@ class Lineage:
             until it coalesces.
         
             attributes: 
-                sub1:the first descendant lineage (default: None if the lineage starts at present)
-                sub2:the second descendant lineage (default: None if the lineage starts at present)
-                If the lineage starts at present, both sub1 and sub2 are None. 
+                sub1
+                    the first descendant lineage (default: None if the lineage starts at present)
+                sub2
+                    the second descendant lineage (default: None if the lineage starts at present)
+                    If the lineage starts at present, both sub1 and sub2 are None. 
                 If it is formed by coalescence, both are lineages. 
-                T0: the time at which the lineage was first encountered (the most recent time)
-                T1:  the time at which the lineage coalesces (typically not known when the lineage is first created)
-                nsamples: the number of samples that trace their ancestry to this lineage
-                length=T1-T0, the total times spent in the lineage. 
+                T0
+                    the time at which the lineage was first encountered (the most recent time)
+                T1
+                    the time at which the lineage coalesces (typically not known when the lineage is first created)
+                nsamples
+                    the number of samples that trace their ancestry to this lineage
+                    length=T1-T0, the total times spent in the lineage. 
         """
 
+        ## if we have only a single individual, this consists of the "root"
         self.isRoot = isRoot
 
         if isRoot:
             self.sub1 = sub1
             self.sub2 = None
             return
+
+        ## assertions for making sure we have useable information
         assert sub1 is not None, 'Sub1 cannot be none'
         assert sub2 is not None, 'sub2 cannot be none'
-        assert isinstance( sub1 , Lineage ) or isinstance ( sub1 , Individual ), 'sub1 must either be a lineage or an individual'
-        assert isinstance( sub2 , Lineage ) or isinstance ( sub2 , Individual ), 'sub2 must either be a lineage or an individual'
+        assert isinstance( sub1 , ( Lineage , Individual ) ) , 'sub1 must either be a lineage or an individual'
+        assert isinstance( sub2 , ( Lineage , Individual ) ) , 'sub2 must either be a lineage or an individual'
         assert time >= 0, 'time cannot be negative'
 
         self.sub1 = sub1 #the first descendant lineage
         self.sub2 = sub2 #the second descendant lineage 
         self.time = 0 #stores the time that the lineage came about
 
-        if isinstance ( sub1, Individual ) and isinstance ( sub2, Individual ) :
+        if isinstance( sub1 , Individual ) and isinstance( sub2 , Individual ) :
             self.nsamples = 1 #since this is a leaf, there are only 2 individuals at this position
-        elif isinstance ( sub1, Individual ) and isinstance ( sub2, Lineage ) :
+        elif isinstance( sub1 , Individual ) and isinstance( sub2 , Lineage ) :
             self.nsamples = sub2.nsamples
-        elif isinstance ( sub1, Lineage ) and isinstance ( sub2, Individual ):
+        elif isinstance( sub1 , Lineage ) and isinstance( sub , Individual ):
             self.nsamples = sub1.nsamples
         else:
             self.nsamples = sub1.nsamples + sub2.nsamples
@@ -268,7 +276,7 @@ class Lineage:
 
 
     @staticmethod
-    def load_file( fileName = None , firstParentId = 1 , format = ('t', 'p', 'c1', 'c2') ):
+    def load_file( fileName = None , firstParentId = 1 , format = ( 't' , 'p' , 'c1' , 'c2' ) ):
         """
             This method loads a csv file with the given format and converts
             it into a lineage that can be manipulated or visualized.

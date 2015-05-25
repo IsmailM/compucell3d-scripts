@@ -1,6 +1,6 @@
 #### CODE SCAFFOLDING BY SIMON GRAVEL
 #### MODIFICATIONS BY ZAFARALI AHMED
-from .Individual import Individual
+from Individual import Individual
 
 class Lineage:
 

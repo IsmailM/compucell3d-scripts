@@ -30,9 +30,12 @@ from DivisionTrackerSteppables import GrowthSteppable
 GrowthSteppableInstance=GrowthSteppable(sim,_frequency=1)
 steppableRegistry.registerSteppable(GrowthSteppableInstance)
         
+from DivisionTrackerPackage import DivisionTracker
+
+tracker = DivisionTracker()
 
 from DivisionTrackerSteppables import MitosisSteppable
-MitosisSteppableInstance=MitosisSteppable(sim,_frequency=1)
+MitosisSteppableInstance=MitosisSteppable(sim,_frequency=1, trackerInstance=tracker)
 steppableRegistry.registerSteppable(MitosisSteppableInstance)
         
 

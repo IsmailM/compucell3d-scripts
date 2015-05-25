@@ -4,7 +4,7 @@ import CompuCell
 import sys
 
 from PySteppablesExamples import MitosisSteppableBase
-            
+
 
 class ConstraintInitializerSteppable(SteppableBasePy):
     def __init__(self,_simulator,_frequency=1):
@@ -41,8 +41,9 @@ class GrowthSteppable(SteppableBasePy):
         
 
 class MitosisSteppable(MitosisSteppableBase):
-    def __init__(self,_simulator,_frequency=1):
+    def __init__(self,_simulator,_frequency=1, trackerInstance=None):
         MitosisSteppableBase.__init__(self,_simulator, _frequency)
+        self.trackerInstance = trackerInstance
     
     def step(self,mcs):
         # print "INSIDE MITOSIS STEPPABLE"
@@ -51,7 +52,7 @@ class MitosisSteppable(MitosisSteppableBase):
             if cell.volume>28:
                 print 'dividing now'
                 cells_to_divide.append(cell)
-                
+        self.mcs=mcs        
         for cell in cells_to_divide:
             # to change mitosis mode leave one of the below lines uncommented
             self.divideCellRandomOrientation(cell)
@@ -64,12 +65,21 @@ class MitosisSteppable(MitosisSteppableBase):
         childCell=self.mitosisSteppable.childCell
         print 'parent:',parentCell.id
         print 'child:',childCell.id
+
+        # save the info of the division into our file
+        # self.trackerInstance.stashDivision( self.mcs , parentCell.id, childCell.id, parentCell.id )
+        self.trackerInstance.saveDivision( self.mcs , parentCell.id, childCell.id, parentCell.id )
+
         childCell.targetVolume=parentCell.targetVolume
         childCell.lambdaVolume=parentCell.lambdaVolume
         if parentCell.type==self.TUMOR:
             childCell.type=self.TUMOR
         else:
             childCell.type=self.TUMOR
+
+    def finish(self):
+        # self.trackerInstance.saveStash()
+        pass
         
         
 
@@ -77,11 +87,9 @@ class DeathSteppable(SteppableBasePy):
     def __init__(self,_simulator,_frequency=1):
         SteppableBasePy.__init__(self,_simulator,_frequency)
     def step(self,mcs):
-        if mcs==300:
+        if mcs==1000:
             for cell in self.cellList:
                 if cell.type==self.TUMOR:
                     cell.targetVolume=0
                     cell.lambdaVolume=100
                     print 'dying now\n\n\n\n\n\n\n\n'
-        
-        

@@ -1,6 +1,6 @@
 ### WRITTEN BY ZAFARALI AHMED
 ### May 2015
-
+import numpy as np
 
 """
 	Genome
@@ -14,44 +14,46 @@ class Genome:
 			@params:
 			mutation_rate / float or int / 0
 				the rate at which bases of the genome are mutated (i.e bit flipped from 0 --> 1)
-			replication_event / boolean
-				specifies if this initialization event is a replication of a previously existing genome
-			genome_to_copy / Genome / False
-				the genome that must be replicated	
-
+			size / int / 1000
+				number of genes/bases in genome
 		"""
 
-		# (1) is this genome being created due to a replication event?
+		size = int( kwargs.get( 'size' , 1000 ) )
+		assert size > 0 , 'genome_size must be non-zero positive'
+		self.size = size
 
-		replication_event = kwargs.get( 'replication_event' , False )
+		self.mutation_rate = int( kwargs.get( 'mutation_rate' , 0 ) )
+		assert self.mutation_rate > -1 , ' mutation rate cannot be negative '
 
-		if replication_event:
-			# get the genome we need copied
-			# assign the same loci to this genome as the reference one
-			# we now have a duplicate
-			genome_to_copy = kwargs.get( 'genome_to_copy' , None )
-			assert genome_to_copy is not None, 'Cannot replicate a Genome that doesn\'nt exist!'
-			assert isinstance( genome_to_copy , Genome ) , 'cannot copy a non-Genome object!'
-			## @TODO: do we use deep_copy or a shallow_copy?
-			## since these are ints to they really matter?
-			return
-
+		self.annotations = {}
 		self.mutated_loci = []
-		self.mutation_rate = kwargs.get( 'mutation_rate' , 0 )
 
+	def replicate ( self ):
+			replicated_genome = Genome( mutation_rate = self.mutation_rate , size = self.size )
+			replicated_genome.mutated_loci.extend( self.mutated_loci )
+			replicated_genome.annotations = dict( self.annotations )
 
+			return replicated_genome
 
 
 	def mutate ( self ):
-		"""
+		"""self.mutated_loci = []
 			mutates the genome
 		"""	
 		# generate how many mutations we want
+		number_of_mutations = np.random.poisson( self.mutation_rate )
 		# generate random numbers representing loci
+		loci = np.random.randint( self.size , size = number_of_mutations )
 		# store the loci in mutated_loci if they aren't already there to represent
-		# a bit flip to 1. If they are there, remove that loci to represent 
-		# a bit flip to 0
-		pass
+		for locus in loci:
+			if locus in self.mutated_loci:
+				# If they are there, remove that loci to represent 
+				self.mutated_loci.remove( locus )
+			else:
+				# a bit flip to 0
+				self.mutated_loci.append( locus )
+
+		
 
 	def get_mutated_loci ( self ):
 		""" 
@@ -60,3 +62,44 @@ class Genome:
 				location of the loci of the mutation (bits that are 1)
 		"""
 		return self.mutated_loci
+
+	def annotate ( self , locus , name ):
+		self.annotations[name] = locus
+
+	def is_mutated ( self , **kwargs ):
+		"""
+			is_mutated
+				returns if a locus or specified annotation is mutated (i.e bit == 1)
+			@params
+				locus: index of generate
+				name: annotation of the locus (use Genome.annotate to annotate loci)
+				annotation: annotation of the locus (use Genome.annotate to annotate loci)
+			@return
+				boolean: depending on if the gene has been mutated
+		"""
+		# get locus
+			# if no locus, get the name
+			# get the locus of that name
+			# if no locus related to the name, return None
+		location = kwargs.get( 'locus' , self.annotations.get( kwargs.get( 'name' , None ) or kwargs.get( 'annotation' , None ) , None ) )
+		assert location is not None , 'locus or name were non-valid'
+
+		return location in self.mutated_loci
+
+
+
+"""
+	GenomeCompare
+	allows easy analysis of two genomes
+"""
+
+class GenomeCompare:
+	def __init__ ( self, genomes = [ None , None ] ):
+		assert len( genomes ) == 2 , 'GenomeCompare only supports comparisons between two genomes for now '
+		assert isinstance( genomes[0] , Genome ) and isinstance( genomes[1] , Genome ) , 'genomes must contain Genome objects only'
+		
+		genome1 = genomes[0]
+		genome2 = genomes[1]
+
+	def diff( self ):
+		

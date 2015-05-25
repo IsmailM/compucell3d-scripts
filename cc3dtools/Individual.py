@@ -1,3 +1,6 @@
+### WRITTEN BY ZAFARALI AHMED
+### MAY 2015
+
 class Individual:
     def __init__ ( self , iid,  **kwargs ):
         """

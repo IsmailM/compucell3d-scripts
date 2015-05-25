@@ -4,7 +4,7 @@
       
       <!-- Basic properties of CPM (GGH) algorithm -->
       <Dimensions x="200" y="200" z="1"/>
-      <Steps>2000</Steps>
+      <Steps>1000</Steps>
       <Temperature>20.0</Temperature>
       <NeighborOrder>2</NeighborOrder>
    </Potts>
@@ -20,7 +20,7 @@
       <!-- Handled within the python script -->
    </Plugin>
 
-    s
+
    <Plugin Name="CenterOfMass">
       
       <!-- Module tracking center of mass of each cell -->
@@ -39,7 +39,7 @@
       <!-- Initial layout of cells in the form of rectangular slab -->
       <Region>
          <BoxMin x="40" y="40" z="0"/>
-         <BoxMax x="160" y="160" z="1"/>
+         <BoxMax x="45" y="45" z="1"/>
          <Gap>0</Gap>
          <Width>5</Width>
          <Types>Tumor</Types>
