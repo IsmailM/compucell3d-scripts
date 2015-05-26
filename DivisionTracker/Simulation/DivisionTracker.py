@@ -6,6 +6,8 @@ import string
 
 sys.path.append(environ["PYTHON_MODULE_PATH"])
 
+pt = os.getcwd().split('/DivisionTracker/Simulation')[0]+'/sim.csv'
+
 
 import CompuCellSetup
 
@@ -32,17 +34,18 @@ steppableRegistry.registerSteppable(GrowthSteppableInstance)
         
 from DivisionTrackerPackage import DivisionTracker
 
-tracker = DivisionTracker()
+tracker = DivisionTracker(fileName='../division_output.csv')
 
 from DivisionTrackerSteppables import MitosisSteppable
+
 MitosisSteppableInstance=MitosisSteppable(sim,_frequency=1, trackerInstance=tracker)
 steppableRegistry.registerSteppable(MitosisSteppableInstance)
-        
+
+
 
 from DivisionTrackerSteppables import DeathSteppable
 DeathSteppableInstance=DeathSteppable(sim,_frequency=1)
 steppableRegistry.registerSteppable(DeathSteppableInstance)
         
 CompuCellSetup.mainLoop(sim,simthread,steppableRegistry)
-        
         

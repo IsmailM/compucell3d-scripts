@@ -1,0 +1,7 @@
+from Lineage import Lineage
+import sys
+assert len(sys.argv) > 1, ' No command was supplied'
+
+if sys.argv[1] == '-tonewick' or sys.argv[1] == '--2n':
+	div_file = sys.argv[2]
+	print Lineage.load_file(div_file).to_newick()

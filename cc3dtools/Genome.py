@@ -52,8 +52,7 @@ class Genome:
 			else:
 				# a bit flip to 0
 				self.mutated_loci.append( locus )
-
-		
+		return self
 
 	def get_mutated_loci ( self ):
 		""" 
@@ -86,7 +85,11 @@ class Genome:
 
 		return location in self.mutated_loci
 
-
+	@staticmethod
+	def from_mutated_loci ( mutated_loci, size = 1000 ):
+		to_return = Genome(size=size)
+		to_return.mutated_loci = sorted(list(mutated_loci))
+		return to_return
 
 """
 	GenomeCompare
@@ -95,42 +98,27 @@ class Genome:
 
 class GenomeCompare:
 	def __init__ ( self, genomes = [ None , None ] ):
-		assert len( genomes ) == 2 , 'GenomeCompare only supports comparisons between two genomes for now '
-		assert isinstance( genomes[0] , Genome ) and isinstance( genomes[1] , Genome ) , 'genomes must contain Genome objects only'
-		
-		self.g1 = genomes[0]
-		self.g2 = genomes[1]
+		raise DeprecationWarning('GenomeCompare has been moved to its own file. Reimport from cc3dtools.GenomeCompare' )
 
-	def diff( self ):
-		"""
-			returns the number and loci of genes that
-			are unqiue between the two genomes supplied
-			[optional] if diff_map = True then it returns a n*n matrix with 1's 
-			wherever the genes are different
-		"""
-		size = ( self.g1.size + self.g2.size ) / 2
-		
-		g1_mutated = self.g1.get_mutated_loci()
-		g2_mutated = self.g2.get_mutated_loci()
+def save_genomes( genomes , file_name = 'genomes_saved_output.csv' ):
+	"""
+		saves an array of genomes to a file
+		@params:
+			genomes / array
+				an array of genomes to be genomes to be saved
+			file_name / string / 'genomes_saved_output.csv'
+				file name to save the genomes into
 
-		different_genes = 0
-		different_loci = []
+		(!) this only saves the mutated loci and not genome sizes etc.
+	"""
+	assert genomes is not None ,  'you must supply an array of genomes as the first argument'
+	assert len( genomes ) > 0 , 'you must supply at least one genome'
+	import csv
 
-
-		for locus in g1_mutated:
-			if not (locus in g2_mutated):
-				different_genes += 1
-				different_loci.append(locus)
-
-
-		for locus in g2_mutated:
-			if not(locus in g1_mutated) and not(locus in different_loci):
-				different_genes +=1 
-				different_loci.append(locus)
-			
-
-
-		
-		return ( different_genes , different_loci )
+	with open( file_name, 'w' ) as f:
+		writer = csv.writer( f )
+		for k, genome in enumerate( genomes ):
+			writer.writerow( sorted( genome.get_mutated_loci() ) )
+	pass
 
 

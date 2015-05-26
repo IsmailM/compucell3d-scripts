@@ -1,10 +1,15 @@
 
 from PySteppables import *
 import CompuCell
-import sys
+import sys, os
 
 from PySteppablesExamples import MitosisSteppableBase
 
+## allows us to import the cc3dtools built.
+pt = os.getcwd().split('/DivisionTracker/Simulation')[0]
+sys.path.append(pt)
+
+from cc3dtools.Genome import Genome, save_genomes
 
 class ConstraintInitializerSteppable(SteppableBasePy):
     def __init__(self,_simulator,_frequency=1):
@@ -13,9 +18,6 @@ class ConstraintInitializerSteppable(SteppableBasePy):
         for cell in self.cellList:
             cell.targetVolume=25
             cell.lambdaVolume=2.0
-
-        
-        
 
 class GrowthSteppable(SteppableBasePy):
     def __init__(self,_simulator,_frequency=1):
@@ -36,14 +38,14 @@ class GrowthSteppable(SteppableBasePy):
             # pt.y=int(cell.yCOM)
             # pt.z=int(cell.zCOM)
             # concentrationAtCOM=field.get(pt)
-            # cell.targetVolume+=0.01*concentrationAtCOM  # you can use here any fcn of concentrationAtCOM     
-        
+            # cell.targetVolume+=0.01*concentrationAtCOM  # you can use here any fcn of concentrationAtCOM             
         
 
 class MitosisSteppable(MitosisSteppableBase):
-    def __init__(self,_simulator,_frequency=1, trackerInstance=None):
+    def __init__(self,_simulator,_frequency=1, trackerInstance=None, genomes=[Genome(mutation_rate=0),Genome(mutation_rate=5)]):
         MitosisSteppableBase.__init__(self,_simulator, _frequency)
         self.trackerInstance = trackerInstance
+        self.genomes = genomes
     
     def step(self,mcs):
         # print "INSIDE MITOSIS STEPPABLE"
@@ -65,10 +67,14 @@ class MitosisSteppable(MitosisSteppableBase):
         childCell=self.mitosisSteppable.childCell
         print 'parent:',parentCell.id
         print 'child:',childCell.id
+        genomes = self.genomes
 
+        ## append a new genome to the genomes object
+        genomes.append( genomes[parentCell.id].mutate().replicate() )
         # save the info of the division into our file
-        # self.trackerInstance.stashDivision( self.mcs , parentCell.id, childCell.id, parentCell.id )
-        self.trackerInstance.saveDivision( self.mcs , parentCell.id, childCell.id, parentCell.id )
+        
+        self.trackerInstance.stashDivision( self.mcs , parentCell.id, childCell.id, parentCell.id )
+        
 
         childCell.targetVolume=parentCell.targetVolume
         childCell.lambdaVolume=parentCell.lambdaVolume
@@ -78,7 +84,13 @@ class MitosisSteppable(MitosisSteppableBase):
             childCell.type=self.TUMOR
 
     def finish(self):
-        # self.trackerInstance.saveStash()
+        self.trackerInstance.saveStash()
+
+        for k, genome in enumerate(self.genomes):
+            print '-------      genome '+str(k)+'           ---------'
+            print sorted(genome.get_mutated_loci())
+
+        save_genomes(self.genomes, file_name='../gendata.csv')
         pass
         
         
@@ -87,7 +99,7 @@ class DeathSteppable(SteppableBasePy):
     def __init__(self,_simulator,_frequency=1):
         SteppableBasePy.__init__(self,_simulator,_frequency)
     def step(self,mcs):
-        if mcs==1000:
+        if mcs==300:
             for cell in self.cellList:
                 if cell.type==self.TUMOR:
                     cell.targetVolume=0
