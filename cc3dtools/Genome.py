@@ -50,7 +50,7 @@ class Genome:
 				# If they are there, remove that loci to represent 
 				self.mutated_loci.remove( locus )
 			else:
-				# a bit flip to 0
+				# a bit flip to 1
 				self.mutated_loci.append( locus )
 		return self
 

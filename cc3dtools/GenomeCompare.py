@@ -96,8 +96,8 @@ class GenomeCompare:
 		"""
 
 		pass
-		
-	def mutation_chart( self, draw = False ):
+
+	def mutation_chart( self, draw = False, order = None ):
 		"""
 			returns a matrix where the y-indicies
 			are genes, and 1 represents mutated
@@ -108,22 +108,48 @@ class GenomeCompare:
 
 		"""
 		size = self.genomes[1].size
+		num_genomes = len(self.genomes)
+		rep = np.zeros( ( size, num_genomes ) )
+		if order is None:
+			order = [ x for x in range( num_genomes ) ]
 
-		rep = np.zeros( ( size, len(self.genomes) ) )
-
-		for genomeid, genome in enumerate( self.genomes ):
+		for genomeid in order:
+			genome = self.genomes[genomeid]
 			for gene in genome.get_mutated_loci():
 				rep[gene][genomeid] = 1
+
 		if draw:
 			plt.figure()
 			plt.imshow( rep , interpolation = 'nearest' )
+			plt.title('Genome Wide Visualization of Mutated Genes')
 			plt.xlabel('Genome')
+			plt.xticks( range( num_genomes ) , order )
 			plt.ylabel('Gene')
 			plt.show()
 		return rep
+
 	def gene_chart( self , draw = False ):
 
 		return self.mutation_chart(draw=draw)
+
+	def gene_mutations( self ):
+		"""
+			returns a list indexed by genes
+			which represent the % of genomes over which 
+			the indexed gene is mutated
+		"""
+		x = self.mutation_chart()
+		return map ( lambda y : y / float( len( self.genomes ) ), map( sum , x ) )
+
+	def genome_mutations ( self ):
+		"""
+			returns a list indexed by genomes
+			which represent the % of genes in the 
+			indexed genome which are mutated
+		"""
+
+		pass
+
 
 	@staticmethod
 	def from_gen_file ( file_name ):
@@ -138,4 +164,14 @@ class GenomeCompare:
 			for row in reader:
 				genomes.append( Genome.from_mutated_loci( map( int , row ) ) )
 		return GenomeCompare( genomes = genomes )
+
+def newick_order( s ):
+	"""
+		takes in a newick representaiton of a tree
+		and returns the ordering of genomes from the tree.
+	"""
+		# split ( brackets and then join and then split ) brakets and join. 
+		# disregard the ; at the end of the string and then split according to the commas.
+		# map the split strings into ints.
+	return map( int , ''.join( ''.join( s.split( '(' ) ).split( ')' ) )[0:-1].split( ',' ) )
 
