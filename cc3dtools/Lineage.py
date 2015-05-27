@@ -90,51 +90,57 @@ class Lineage:
     #     lineage2.T1 = time
     #     return Lineage ( self , lineage2 )
 
+    def next_time( self ):
+        return self.sub1.time
     def plot(self,width,center):
         """
             Plots the lineage and all its descending lineages. To avoid overlap when plotting
             multiple lineages, we specify the width and center of the lineage along the x-axis.
             Time is plotted along the y axis, and uses the lineage T0 and T1
         """
-        plt.plot([center,center],[self.time,self.time],'b') #plot vertical lineage
+        print self.time
+        if not isinstance( self.sub1 , Individual ):
+            self.sub1.plot(0,0)
+        if not isinstance( self.sub2 , Individual ):
+            self.sub2.plot(0,0)
 
         # check if this is a terminal lineage by seeing if both subchildren are leaves.
-        if isinstance( self.sub1 , Lineage ) and isinstance( self.sub2 , Lineage ) :
-            #assign width proportional to the number of lineages in each sub-lineage
-            n1=self.sub1.num_descendants()
-            n2=self.sub2.num_descendants()
-            w1=n1*1./(n1+n2)*width
-            w2=n2*1./(n1+n2)*width
-            mid1=center-width/2.+w1/2. #Find the center of each window
-            mid2=center+width/2.-w2/2.
-            plt.plot([mid1,mid2],[self.time,self.time],'b') #plot horizontal connector
-            self.sub1.plot(w1,mid1) #plot descending lineages
-            self.sub2.plot(w2,mid2)
-            print 'terminated'
+        # if isinstance( self.sub1 , Lineage ) and isinstance( self.sub2 , Lineage ) :
+        #     #assign width proportional to the number of lineages in each sub-lineage
+        #     n1=self.sub1.num_descendants()
+        #     n2=self.sub2.num_descendants()
+        #     w1=n1*1./(n1+n2)*width
+        #     w2=n2*1./(n1+n2)*width
+        #     mid1=center-width/2.+w1/2. #Find the center of each window
+        #     mid2=center+width/2.-w2/2.
+        #     plt.plot([mid1,mid2],[self.time,self.time],'b') #plot horizontal connector
+        #     self.sub1.plot(w1,mid1) #plot descending lineages
+        #     self.sub2.plot(w2,mid2)
+        #     print 'terminated'
 
+        # if isinstance( self.sub1 , Lineage ):
+        #     n1 = self.sub1.num_descendants()
+        #     n2 = 1
+        #     w1 = n1*1./(n1+n2)*width
+        #     w2 = n2*1./(n1+n2)*width
+        #     mid1 = center-width/2.+w1/2. #Find the center of each window
+        #     mid2 = center+width/2.-w2/2.
 
-        if isinstance( self.sub1 , Lineage ):
-            n1 = self.sub1.num_descendants()
-            n2 = 1
-            w1 = n1*1./(n1+n2)*width
-            w2 = n2*1./(n1+n2)*width
-            mid1 = center-width/2.+w1/2. #Find the center of each window
-            mid2 = center+width/2.-w2/2.
+        #     plt.plot([mid1,mid2],[self.time,0],'b') #plot horizontal connector
+        #     self.sub1.plot(w1,mid1) #plot descending lineages
+        #     # add text to the position of sub2.
 
-            plt.plot([mid1,mid2],[self.time,self.time],'b') #plot horizontal connector
-            self.sub1.plot(w1,mid1) #plot descending lineages
-            # add text to the position of sub2.
+        # if isinstance ( self.sub2 , Lineage ):
+        #     n2 = self.sub2.num_descendants()
+        #     n1 = 1
+        #     w1 = n1*1./(n1+n2)*width
+        #     w2 = n2*1./(n1+n2)*width
+        #     mid1 = center-width/2.+w1/2. #Find the center of each window
+        #     mid2 = center+width/2.-w2/2.
+        #     plt.plot([mid1,mid2],[self.time,0],'b') #plot horizontal connector
+        #     self.sub2.plot(w2,mid2) #plot descending lineages
+        #     # add text to the position of sub1
 
-        if isinstance ( self.sub2 , Lineage ):
-            n2 = self.sub2.num_descendants()
-            n1 = 1
-            w1 = n1*1./(n1+n2)*width
-            w2 = n2*1./(n1+n2)*width
-            mid1 = center-width/2.+w1/2. #Find the center of each window
-            mid2 = center+width/2.-w2/2.
-            plt.plot([mid1,mid2],[self.time,self.time],'b') #plot horizontal connector
-            self.sub2.plot(w2,mid2) #plot descending lineages
-            # add text to the position of sub1
 
 
     # def get_length(self):

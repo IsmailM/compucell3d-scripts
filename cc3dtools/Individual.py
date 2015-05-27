@@ -25,3 +25,10 @@ class Individual:
             return str(self.id)
         else: 
             return str(self.name)
+
+    def num_descendants ( self ):
+        
+        return 0
+
+    def plot ( self ):
+        return
