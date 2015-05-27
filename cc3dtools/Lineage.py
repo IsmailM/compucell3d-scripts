@@ -1,6 +1,7 @@
 #### CODE SCAFFOLDING BY SIMON GRAVEL
 #### MODIFICATIONS BY ZAFARALI AHMED
 from Individual import Individual
+import matplotlib.pyplot as plt
 
 class Lineage:
 
@@ -33,6 +34,8 @@ class Lineage:
         if isRoot:
             self.sub1 = sub1
             self.sub2 = None
+            self.time = 0
+            self.nsamples = 1
             return
 
         ## assertions for making sure we have useable information
@@ -44,14 +47,14 @@ class Lineage:
 
         self.sub1 = sub1 #the first descendant lineage
         self.sub2 = sub2 #the second descendant lineage 
-        self.time = 0 #stores the time that the lineage came about
+        self.time = time #stores the time that the lineage came about
 
         if isinstance( sub1 , Individual ) and isinstance( sub2 , Individual ) :
-            self.nsamples = 1 #since this is a leaf, there are only 2 individuals at this position
+            self.nsamples = 2 #since this is a leaf, there are only 2 individuals at this position
         elif isinstance( sub1 , Individual ) and isinstance( sub2 , Lineage ) :
-            self.nsamples = sub2.nsamples
+            self.nsamples = sub2.nsamples + 1
         elif isinstance( sub1 , Lineage ) and isinstance( sub , Individual ):
-            self.nsamples = sub1.nsamples
+            self.nsamples = sub1.nsamples + 1
         else:
             self.nsamples = sub1.nsamples + sub2.nsamples
         #     #then the lineage is a leaf, we store individuals as leaves or none
@@ -87,24 +90,52 @@ class Lineage:
     #     lineage2.T1 = time
     #     return Lineage ( self , lineage2 )
 
-    # def plot(self,width,center):
-    #     """
-    #         Plots the lineage and all its descending lineages. To avoid overlap when plotting
-    #         multiple lineages, we specify the width and center of the lineage along the x-axis.
-    #         Time is plotted along the y axis, and uses the lineage T0 and T1
-    #     """
-    #     plt.plot([center,center],[self.T0,self.T1],'b') #plot vertical lineage
-    #     if self.T0!=0:
-    #         #assign width proportional to the number of lineages in each sub-lineage
-    #         n1=self.sub1.nsamples
-    #         n2=self.sub2.nsamples
-    #         w1=n1*1./(n1+n2)*width
-    #         w2=n2*1./(n1+n2)*width
-    #         mid1=center-width/2.+w1/2. #Find the center of each window
-    #         mid2=center+width/2.-w2/2.
-    #         plt.plot([mid1,mid2],[self.T0,self.T0],'b') #plot horizontal connector
-    #         self.sub1.plot(w1,mid1) #plot descending lineages
-    #         self.sub2.plot(w2,mid2)
+    def plot(self,width,center):
+        """
+            Plots the lineage and all its descending lineages. To avoid overlap when plotting
+            multiple lineages, we specify the width and center of the lineage along the x-axis.
+            Time is plotted along the y axis, and uses the lineage T0 and T1
+        """
+        plt.plot([center,center],[self.time,self.time],'b') #plot vertical lineage
+
+        # check if this is a terminal lineage by seeing if both subchildren are leaves.
+        if isinstance( self.sub1 , Lineage ) and isinstance( self.sub2 , Lineage ) :
+            #assign width proportional to the number of lineages in each sub-lineage
+            n1=self.sub1.num_descendants()
+            n2=self.sub2.num_descendants()
+            w1=n1*1./(n1+n2)*width
+            w2=n2*1./(n1+n2)*width
+            mid1=center-width/2.+w1/2. #Find the center of each window
+            mid2=center+width/2.-w2/2.
+            plt.plot([mid1,mid2],[self.time,self.time],'b') #plot horizontal connector
+            self.sub1.plot(w1,mid1) #plot descending lineages
+            self.sub2.plot(w2,mid2)
+            print 'terminated'
+
+
+        if isinstance( self.sub1 , Lineage ):
+            n1 = self.sub1.num_descendants()
+            n2 = 1
+            w1 = n1*1./(n1+n2)*width
+            w2 = n2*1./(n1+n2)*width
+            mid1 = center-width/2.+w1/2. #Find the center of each window
+            mid2 = center+width/2.-w2/2.
+
+            plt.plot([mid1,mid2],[self.time,self.time],'b') #plot horizontal connector
+            self.sub1.plot(w1,mid1) #plot descending lineages
+            # add text to the position of sub2.
+
+        if isinstance ( self.sub2 , Lineage ):
+            n2 = self.sub2.num_descendants()
+            n1 = 1
+            w1 = n1*1./(n1+n2)*width
+            w2 = n2*1./(n1+n2)*width
+            mid1 = center-width/2.+w1/2. #Find the center of each window
+            mid2 = center+width/2.-w2/2.
+            plt.plot([mid1,mid2],[self.time,self.time],'b') #plot horizontal connector
+            self.sub2.plot(w2,mid2) #plot descending lineages
+            # add text to the position of sub1
+
 
     # def get_length(self):
     #     """
@@ -181,12 +212,15 @@ class Lineage:
             self.sub1 = child1
             self.sub2 = child2
             self.isRoot = False
+            self.nsamples = 2
             return
 
         if lr == 1:
             container.sub1 = Lineage( sub1 = child1 , sub2 = child2 , time = time )
         elif lr == 2: 
             container.sub2 = Lineage( sub1 = child1 , sub2 = child2 , time = time )
+
+        container.nsamples+=2
 
     def to_newick ( self ): 
         """
@@ -198,6 +232,29 @@ class Lineage:
     def save_verbose ( self , format = ('t', 'p', 'c1', 'c2') ):
         pass
 
+    def num_descendants ( self ):
+        """
+            Returns the number of descendants of the lineage
+        """
+        if isinstance( self.sub1 , Individual ) and isinstance( self.sub2 , Individual ) :
+            return 2 #since this is a leaf, there are only 2 individuals at this position
+        elif isinstance( self.sub1 , Individual ) and isinstance( self.sub2 , Lineage ) :
+            return self.sub2.num_descendants() + 1
+        elif isinstance( self.sub1 , Lineage ) and isinstance( self.sub2 , Individual ):
+            return self.sub1.num_descendants() + 1
+        else:
+            return self.sub1.num_descendants() + self.sub2.num_descendants()
+
+    # def descendants ( self ):
+    #     if isinstance( self.sub1 , Individual ) and isinstance( self.sub2 , Individual ) :
+    #         return [ self.sub1 , self.sub2 ] #since this is a leaf, there are only 2 individuals at this position
+    #     elif isinstance( self.sub1 , Individual ) and isinstance( self.sub2 , Lineage ) :
+    #         return [ self.sub1 ].extend( self.sub2.descendants() )
+    #     elif isinstance( self.sub1 , Lineage ) and isinstance( self.sub2 , Individual ):
+    #         return [ self.sub2 ].extend( self.sub1.descendants() )
+    #     else:
+    #         return self.sub1.descendants().extend( self.sub2.descendants() )
+       
 
     @staticmethod
     def load_file( fileName = None , firstParentId = 1 , format = ( 't' , 'p' , 'c1' , 'c2' ) ):
@@ -214,11 +271,11 @@ class Lineage:
         with open( fileName , 'r' ) as f :
             reader = csv.reader( f )
             for row in reader:
-                info = dict(zip( format , row ))
+                info = dict( zip( format , row ) )
                 out.divide( parent = info['p'] , \
                     child1 = Individual( int( info['c1'] ) , name = info['c1'] ) , \
                     child2 = Individual( int( info['c2'] ) , name = info['c2'] ) ,\
-                    time = info['t'] )
+                    time = int ( info['t'] ) )
         return out
 
 
