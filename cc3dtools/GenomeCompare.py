@@ -114,6 +114,7 @@ class GenomeCompare:
 			order = [ x for x in range( num_genomes ) ]
 
 		for genomeid in order:
+			print 'genomeid:',genomeid
 			genome = self.genomes[genomeid]
 			for gene in genome.get_mutated_loci():
 				rep[gene][genomeid] = 1
