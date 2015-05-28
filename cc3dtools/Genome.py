@@ -34,7 +34,7 @@ class Genome(object):
 	
 	def replicate ( self ):
 			replicated_genome = Genome( mutation_rate = self.mutation_rate , size = self.size , genome_order = self.genome_order )
-			replicated_genome.mutated_loci.union( self.mutated_loci )
+			replicated_genome.mutated_loci = replicated_genome.mutated_loci.union( self.mutated_loci )
 			replicated_genome.annotations = dict( self.annotations )
 
 			return replicated_genome
@@ -54,7 +54,7 @@ class Genome(object):
 		#	(3) select the first few numbers
 		#	(4) map the strings to floats
 		# 	(5) map the floats to mutations
-		loci = set( map( Mutation , map( float , map( lambda y : y[0:self.genome_order] , map( str , np.random.uniform(  size = number_of_mutations ) ) ) ) ) )
+		loci = set( map( Mutation ,  np.around( np.random.uniform(  size = number_of_mutations ) , decimals = 4 ) ) )
 		# print loci
 		# store the loci in mutated_loci if they aren't already there to represent
 		
