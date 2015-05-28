@@ -5,3 +5,19 @@ assert len(sys.argv) > 1, ' No command was supplied'
 if sys.argv[1] == '-tonewick' or sys.argv[1] == '--2n':
 	div_file = sys.argv[2]
 	print Lineage.load_file(div_file).to_newick()
+
+if sys.argv[1] == '-draw' or sys.argv[1] == '--draw':
+	div_file = sys.argv[2]
+	w = 0
+	try:
+		w = int(sys.argv[3])
+	except IndexError:
+		w = 20
+	Lineage.load_file(div_file).draw( w )
+
+if sys.argv[1] == '-newickorder' or sys.argv[1] == '--nwo':
+	div_file = sys.argv[2]
+
+	s = Lineage.load_file(div_file).to_newick()
+	print map(int,''.join(''.join(s.split('(')).split(')'))[0:-1].split(','))
+
