@@ -27,8 +27,10 @@ class Individual:
             return str(self.name)
 
     def num_descendants ( self ):
-        
         return 0
 
-    def plot ( self ):
+    def plot ( self , center , generation , widith ):
+        import matplotlib.pyplot as plt
+        plt.plot( [ center , center ] , [ generation , generation - 1 ] , 'b' )
+        plt.text( center , generation - 1.25 , str(self.name) if self.name is not None else str(self.id) , horizontalalignment='center'  )
         return

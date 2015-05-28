@@ -92,17 +92,43 @@ class Lineage:
 
     def next_time( self ):
         return self.sub1.time
-    def plot(self,width,center):
+
+    def draw ( self, width ):
+        plt.figure()
+        self.plot( 0 , self.num_descendants() , width )
+        plt.xticks( [] )
+        plt.xlabel( 'Cells' )
+        plt.yticks([])
+        plt.ylabel( 'Division' )
+        plt.title('Tree')
+        plt.show()
+
+    def plot( self , center , generation , width ):
         """
             Plots the lineage and all its descending lineages. To avoid overlap when plotting
             multiple lineages, we specify the width and center of the lineage along the x-axis.
             Time is plotted along the y axis, and uses the lineage T0 and T1
         """
-        print self.time
-        if not isinstance( self.sub1 , Individual ):
-            self.sub1.plot(0,0)
-        if not isinstance( self.sub2 , Individual ):
-            self.sub2.plot(0,0)
+
+        # plot the vertical line 
+        plt.plot( [ center , center ] , [ generation , generation - 1 ] , 'b' )
+
+        n1 = self.sub1.num_descendants() or 1
+        n2 = self.sub2.num_descendants() or 1
+        w1 = n1 * 1. / ( n1 + n2 ) * width
+        w2 = n2 * 1. / ( n1 + n2 ) * width
+        mid1 = center - width / 2. + w1 / 2.
+        mid2 = center + width / 2. - w2 / 2.
+
+        #plot horizontal line
+        plt.plot( [ mid1 , mid2 ] , [ generation - 1 , generation - 1 ] , 'b' )
+
+        self.sub1.plot( mid1 , generation - 1 , w1 )
+        self.sub2.plot( mid2 , generation - 1 , w2 )
+
+
+
+
 
         # check if this is a terminal lineage by seeing if both subchildren are leaves.
         # if isinstance( self.sub1 , Lineage ) and isinstance( self.sub2 , Lineage ) :
