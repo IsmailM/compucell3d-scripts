@@ -7,7 +7,7 @@ import numpy as np
 		emulates a 'genome' of a cell. has replication and mutation capabilities
 		the genome contains 0s and 1s. If a base is mutated it is represented by 1
 """
-class Genome:
+class Genome(object):
 	def __init__ ( self, **kwargs ):
 		"""
 			creates a new genome
@@ -30,11 +30,11 @@ class Genome:
 		assert self.mutation_rate > -1 , ' mutation rate cannot be negative '
 
 		self.annotations = {}
-		self.mutated_loci = []
+		self.mutated_loci = set()
 	
 	def replicate ( self ):
 			replicated_genome = Genome( mutation_rate = self.mutation_rate , size = self.size , genome_order = self.genome_order )
-			replicated_genome.mutated_loci.extend( self.mutated_loci )
+			replicated_genome.mutated_loci.union( self.mutated_loci )
 			replicated_genome.annotations = dict( self.annotations )
 
 			return replicated_genome
@@ -54,8 +54,8 @@ class Genome:
 		#	(3) select the first few numbers
 		#	(4) map the strings to floats
 		# 	(5) map the floats to mutations
-		loci = map( Mutation , map( float , map( lambda y : y[0:self.genome_order] , map( str , np.random.uniform(  size = number_of_mutations ) ) ) ) )
-
+		loci = set( map( Mutation , map( float , map( lambda y : y[0:self.genome_order] , map( str , np.random.uniform(  size = number_of_mutations ) ) ) ) ) )
+		# print loci
 		# store the loci in mutated_loci if they aren't already there to represent
 		
 		# for locus in loci:
@@ -64,12 +64,13 @@ class Genome:
 		# 	# 	self.mutated_loci.remove( locus )
 		# 	# else:
 		# 		# a bit flip to 1
-		# 		self.mutated_loci.append( locus )
+		# 		self.mutated_loci.add( locus )
 
 		for locus in loci:
 			if not ( locus in self.mutated_loci ) :
-				self.mutated_loci.append( locus )
-		# self.mutated_loci = list( set( self.mutated_loci.extend( loci ) ) )
+				self.mutated_loci.add( locus )
+		
+		# self.mutated_loci = self.mutated_loci.union( loci )
 
 		# return self to allow chaining to occur
 		return self
@@ -80,7 +81,7 @@ class Genome:
 			@return: list of ints
 				location of the loci of the mutation (bits that are 1)
 		"""
-		return self.mutated_loci
+		return list( self.mutated_loci ) 
 
 	def annotate ( self , locus , name ):
 		self.annotations[name] = locus
@@ -106,9 +107,9 @@ class Genome:
 		return Mutation(location) in self.mutated_loci
 
 	@staticmethod
-	def from_mutated_loci ( mutated_loci , size = 1000, mutation_rate=0, genome_order=4 ):
-		to_return = Genome(size=size, genome_order=genome_order, mutation_rate=mutation_rate)
-		to_return.mutated_loci = map( Mutation , sorted( list( mutated_loci ) ) )
+	def from_mutated_loci ( mutated_loci , size = 1000 , mutation_rate = 0 , genome_orde = 4 ):
+		to_return = Genome( size = size , genome_order = genome_order , mutation_rate = mutation_rate )
+		to_return.mutated_loci = set( map( Mutation , sorted( list( mutated_loci ) ) ) )
 		return to_return
 
 
@@ -116,8 +117,13 @@ class Genome:
 	Mutation
 		stores a mutation at a single locus
 """
-class Mutation:
+class Mutation(object):
 	def __init__ ( self , locus , **kwargs ):
+		"""
+			@params:
+				locus / *
+				identification for the mutation, usually a float
+		"""
 		self.locus = locus
 
 	def __repr__ ( self ):
@@ -137,6 +143,9 @@ class Mutation:
 		elif  self.locus == other.locus:
 			# print 'equal'
 			return 0
+
+	def __hash__(self):
+		return hash(self.locus)
 
 
 class GenomeCompare:
