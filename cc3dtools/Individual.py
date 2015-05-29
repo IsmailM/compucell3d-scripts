@@ -29,8 +29,9 @@ class Individual:
     def num_descendants ( self ):
         return 0
 
-    def plot ( self , center , generation , widith ):
+    def plot ( self , center , generation , widith , final_points ):
         import matplotlib.pyplot as plt
         plt.plot( [ center , center ] , [ generation , generation - 1 ] , 'b' )
         plt.text( center , generation - 1.25 , str(self.name) if self.name is not None else str(self.id) , horizontalalignment='center'  )
+        final_points.append( ( center , generation - 1.25 ) )
         return
