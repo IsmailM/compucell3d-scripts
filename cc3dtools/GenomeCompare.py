@@ -5,7 +5,7 @@
 	allows easy analysis 
 """
 
-from Genome import Genome
+from Genome import Genome, Mutation
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -155,7 +155,7 @@ class GenomeCompare:
 	@staticmethod
 	def from_gen_file ( file_name ):
 		"""
-			imports a gen_file and returns a GenomeCompare object
+			imports a (unaligned) gen_file and returns a GenomeCompare object
 		"""
 
 		import csv
@@ -165,6 +165,93 @@ class GenomeCompare:
 			for row in reader:
 				genomes.append( Genome.from_mutated_loci( map( int , row ) ) )
 		return GenomeCompare( genomes = genomes )
+
+	@staticmethod
+	def from_aligned_gen_file ( file_name ):
+		"""
+			imports the new format of aligned gen_file and returns a GenomeCompare object
+		"""
+		print 'Please use GenomeCompare2 for better speeds with aligned genome files' 
+		import csv
+		with open ( file_name , 'r' ) as f:
+			reader = csv.reader( f )
+			rownum , titles = 0 , []
+			mapper = []
+			genomes = []
+			for row in reader:
+				if rownum == 0:
+					mutations_in_file = row[3:]
+					# create a mapper of mutation objects
+					for key, mutation in enumerate( mutations_in_file ):
+						mapper.append( ( key , Mutation( float( mutation ) ) ) )
+					mapper = dict(mapper)
+					rownum += 1
+
+				else:
+					genome_name = row[1]
+					mutation_rate = row[2]
+					genome_mutations_rep = row[3:]
+					genome_mutations_rep = map( int , map( float , genome_mutations_rep ) )
+					genome_mutations = []
+					for key , mutation_state in enumerate( genome_mutations_rep ):
+						# print mutation_state
+						if mutation_state == 1:
+							genome_mutations.append( mapper[ key ] )
+
+					genome_to_create = Genome( mutation_rate = float( mutation_rate ) , name = str( genome_name ) )
+					genome_to_create.mutated_loci = genome_mutations
+					genomes.append( genome_to_create )
+
+		
+		return GenomeCompare( genomes = genomes )
+
+		
+		
+
+
+class GenomeCompare2(object):
+	def __init__ ( self , file_name ):
+		"""
+			Used to handle files that are aligned genomes. Returns a GenomeCompare2 object
+			@params:
+				file_name / string
+					the path to the file needed to be loaded
+		"""
+
+		import csv
+		with open ( file_name , 'r' ) as f:
+			reader = csv.reader( f )
+			rownum , titles = 0 , []
+			mapper = []
+			genomes = []
+			for row in reader:
+				if rownum == 0:
+					mutations_in_file = row[3:]
+					# create a mapper of mutation objects
+					for key, mutation in enumerate( mutations_in_file ):
+						mapper.append( ( float( key ), Mutation( float( mutation ) ) ) )
+					mapper = dict(mapper)
+
+					rownum += 1
+
+				else:
+					genome_name = row[1]
+					mutation_rate = row[2]
+					genome_mutations_rep = row[3:]
+					genome_mutations = []
+					for key , mutation in enumerate( genome_mutations_rep ):
+						if mutation == 1:
+							genome_mutations.append( mapper[ float( key ) ] )
+
+					genome_to_create = Genome( mutation_rate = float( mutation_rate ) , name = str( genome_name ) )
+					genome_to_create.mutated_loci = genome_mutations
+					genomes.append( genome_to_create )
+
+		
+		return GenomeCompare( genomes = genomes )
+
+
+
 
 def newick_order( s ):
 	"""

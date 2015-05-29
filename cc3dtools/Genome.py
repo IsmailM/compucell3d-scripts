@@ -124,7 +124,7 @@ class Genome(object):
 		return Mutation(location) in self.mutated_loci
 
 	@staticmethod
-	def from_mutated_loci ( mutated_loci , size = 1000 , mutation_rate = 0 , genome_orde = 4 ):
+	def from_mutated_loci ( mutated_loci , size = 1000 , mutation_rate = 0 , genome_order = 4 ):
 		to_return = Genome( size = size , genome_order = genome_order , mutation_rate = mutation_rate )
 		to_return.mutated_loci = set( map( Mutation , sorted( list( mutated_loci ) ) ) )
 		return to_return
