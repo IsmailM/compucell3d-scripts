@@ -25,6 +25,7 @@ class Genome(object):
 		self.size = size
 		self.genome_order = int ( kwargs.get( 'genome_order', 4 ) )
 
+		self.name = kwargs.get( 'name' , '' )
 
 		self.mutation_rate = int( kwargs.get( 'mutation_rate' , 0 ) )
 		assert self.mutation_rate > -1 , ' mutation rate cannot be negative '
@@ -75,12 +76,17 @@ class Genome(object):
 		# return self to allow chaining to occur
 		return self
 
-	def get_mutated_loci ( self ):
+	def get_mutated_loci ( self , form = 'list' ):
 		""" 
-			@params: None
+			@params: form / str / list
+				the format of the return
 			@return: list of ints
 				location of the loci of the mutation (bits that are 1)
 		"""
+
+		if form == 'set':
+			return self.mutated_loci
+
 		return list( self.mutated_loci ) 
 
 	def annotate ( self , locus , name ):
@@ -97,13 +103,24 @@ class Genome(object):
 			@return
 				boolean: depending on if the gene has been mutated
 		"""
+
+		
 		# get locus
 			# if no locus, get the name
 			# get the locus of that name
 			# if no locus related to the name, return None
-		location = kwargs.get( 'locus' , self.annotations.get( kwargs.get( 'name' , None ) or kwargs.get( 'annotation' , None ) , None ) )
-		assert location is not None , 'locus or name were non-valid none type'
 
+		location = kwargs.get( 'locus' , self.annotations.get( kwargs.get( 'name' , None ) or kwargs.get( 'annotation' , None ) , None ) )
+
+		# if no location is given return false
+		if location is None:
+			return False
+
+		# if a mutation is given as a search term, check for the mutation itself
+		if isinstance( location , Mutation ):
+			return location in self.mutated_loci
+
+		# a location is given in terms of a float, create a mutation object and check if it exists
 		return Mutation(location) in self.mutated_loci
 
 	@staticmethod
@@ -153,7 +170,7 @@ class GenomeCompare:
 	def __init__ ( self, genomes = [ None , None ] ):
 		raise DeprecationWarning('GenomeCompare has been moved to its own file. Reimport from cc3dtools.GenomeCompare' )
 
-def save_genomes( genomes , file_name = 'genomes_saved_output.csv' ):
+def save_genomes( genomes , file_name = 'genomes_saved_output.csv' , method = 'naive' ):
 	"""
 		saves an array of genomes to a file
 		@params:
@@ -161,17 +178,57 @@ def save_genomes( genomes , file_name = 'genomes_saved_output.csv' ):
 				an array of genomes to be genomes to be saved
 			file_name / string / 'genomes_saved_output.csv'
 				file name to save the genomes into
+			method / string / 'naive'
+			 'naive'
+				the method of saving the genome (naive saves it in the old fashion / rows correspond to genomes)
+			 'aligned'
+			 	stores the loci in the new advanced format
 
 		(!) this only saves the mutated loci and not genome sizes etc.
 	"""
 	assert genomes is not None ,  'you must supply an array of genomes as the first argument'
 	assert len( genomes ) > 0 , 'you must supply at least one genome'
 	import csv
+	
+	if method == 'aligned':
+		M = set() # all unique mutated loci will be stored here
+		for g in genomes:
+			M = M.union( g.get_mutated_loci( form = 'set' ) )
 
-	with open( file_name, 'w' ) as f:
-		writer = csv.writer( f )
-		for k, genome in enumerate( genomes ):
-			writer.writerow( sorted( genome.get_mutated_loci() ) )
-	pass
+		M = sorted( list( M ) ) # this is the order in which mutations will be saved
+
+		storage = np.zeros( ( len( genomes ) , len( M ) ) )
+
+		# create a mapping
+		mapping = []
+		for k , m in enumerate( M ):
+			mapping.append( ( m , k ) )
+
+		mapping = dict( mapping )
+
+		for gid , g in enumerate( genomes ):
+			mutations = sorted( g.get_mutated_loci() )
+			storage
+			for locus in mutations:
+				indx = mapping[locus]
+				# print 'mapping '+str(locus)+'to '+str(indx)
+				storage[ gid , indx ] = 1
+
+		titles = ['genomeid'] + M
+
+
+		with open( file_name , 'w' ) as f:
+			writer = csv.writer( f )
+			writer.writerow( titles )
+			for rowid , row in enumerate( storage ):
+				writer.writerow( [ rowid ] + list( row ) )
+
+
+
+	if method == 'naive':
+		with open( file_name, 'w' ) as f:
+			writer = csv.writer( f )
+			for k , genome in enumerate( genomes ):
+				writer.writerow( sorted( genome.get_mutated_loci() ) )
 
 
