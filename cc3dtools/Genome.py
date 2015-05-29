@@ -124,10 +124,11 @@ class Mutation(object):
 				locus / *
 				identification for the mutation, usually a float
 		"""
-		self.locus = locus
+		assert locus >= 0 , 'locus must be greater than or equal to 0'
+		self.locus = float( locus )
 
 	def __repr__ ( self ):
-		return '#' + str( self.locus )
+		return str( self.locus )
 
 	# def __eq__ ( self, other ):
 		# return self.locus == other.locus
