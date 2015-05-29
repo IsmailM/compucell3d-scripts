@@ -208,20 +208,20 @@ def save_genomes( genomes , file_name = 'genomes_saved_output.csv' , method = 'n
 
 		for gid , g in enumerate( genomes ):
 			mutations = sorted( g.get_mutated_loci() )
-			storage
+			
 			for locus in mutations:
 				indx = mapping[locus]
 				# print 'mapping '+str(locus)+'to '+str(indx)
 				storage[ gid , indx ] = 1
 
-		titles = ['genomeid'] + M
+		titles = [ 'genomeid', 'name', 'mutation_rate' ] + M
 
 
 		with open( file_name , 'w' ) as f:
 			writer = csv.writer( f )
 			writer.writerow( titles )
 			for rowid , row in enumerate( storage ):
-				writer.writerow( [ rowid ] + list( row ) )
+				writer.writerow( [ rowid , genomes[rowid].name , genomes[rowid].mutation_rate ] + list( row ) )
 
 
 
