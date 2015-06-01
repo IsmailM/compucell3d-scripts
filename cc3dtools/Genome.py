@@ -23,7 +23,7 @@ class Genome(object):
 		size = int( kwargs.get( 'size' , 1000 ) )
 		assert size > 0 , 'genome_size must be non-zero positive'
 		self.size = size
-		self.genome_order = int ( kwargs.get( 'genome_order', 4 ) )
+		self.genome_order = int ( kwargs.get( 'genome_order', 10 ) )
 
 		self.name = kwargs.get( 'name' , '' )
 

@@ -222,33 +222,97 @@ class GenomeCompare2(object):
 		with open ( file_name , 'r' ) as f:
 			reader = csv.reader( f )
 			rownum , titles = 0 , []
-			mapper = []
-			genomes = []
+			mutation_mapper , genomes , reverse_mutation_mapper = [] , [] , [] 
+			name_mapper = {}
+
 			for row in reader:
 				if rownum == 0:
+					# creates a mapper
 					mutations_in_file = row[3:]
-					# create a mapper of mutation objects
+					# create a mapper of key |--> mutation 
 					for key, mutation in enumerate( mutations_in_file ):
-						mapper.append( ( float( key ), Mutation( float( mutation ) ) ) )
-					mapper = dict(mapper)
+						mutation_mapper.append( ( key , float( mutation ) ) ) 
+						reverse_mutation_mapper.append( ( float( mutation ) , key ) )
+					
+					mutation_mapper = dict(mutation_mapper) # stores key --> mutation
+					reverse_mutation_mapper = dict(reverse_mutation_mapper) # stores mutation --> key
 
 					rownum += 1
-
 				else:
 					genome_name = row[1]
-					mutation_rate = row[2]
+					
+					genome_id = int(row[0])
+
+					# create a mapper of name |--> genome_id 
+					if genome_name != '':
+						name_mapper[genome_name] = genome_id
+
 					genome_mutations_rep = row[3:]
-					genome_mutations = []
-					for key , mutation in enumerate( genome_mutations_rep ):
-						if mutation == 1:
-							genome_mutations.append( mapper[ float( key ) ] )
+					
+					genomes.append( np.array( map( lambda x: int( float( x ) ) , genome_mutations_rep ) ) ) 
 
-					genome_to_create = Genome( mutation_rate = float( mutation_rate ) , name = str( genome_name ) )
-					genome_to_create.mutated_loci = genome_mutations
-					genomes.append( genome_to_create )
+		self.genomes = genomes
+		self.mutation_mapper = mutation_mapper
+		self.reverse_mutation_mapper = reverse_mutation_mapper
+		self.name_mapper = name_mapper
 
-		
-		return GenomeCompare( genomes = genomes )
+	def genome_identify ( self , genome_identifier ):
+		return self.name_mapper.get( genome_identifier, genome_identifier  )
+	def lookup( self, genome_identifier , locus = None ):
+		"""
+			looks up a genome and [optional] locus
+			@params
+				genome_identifier / str or int
+					the genome_id or name of genome you are referencing
+				locus / int / None
+					include if you are looking for a specific gene
+		"""
+		genome_id = self.genome_identify( genome_identifier )
+		if locus is None:
+			return self.genomes[genome_id]
+		else:
+			locus_idx = self.reverse_mutation_mapper.get( locus )
+			return self.genomes[genome_id][locus_idx]
+
+	def mutated_loci( self , genome_identifier ):
+		genome_id = self.genome_identify( genome_identifier )
+		this_genome = self.genomes[genome_id]
+		non_zero = this_genome.nonzero()[0].tolist()
+		to_be_returned = []
+		for k in non_zero:
+			to_be_returned.append( self.mutation_mapper[k] )
+		return to_be_returned
+
+
+	def diff( self, genome_identifier1 , genome_identifier2 ):
+		id1 = self.genome_identify( genome_identifier1 )
+		id2 = self.genome_identify( genome_identifier2 )
+
+		gen1 = self.genomes[id1]
+		gen2 = self.genomes[id2]
+
+		loci = np.bitwise_xor( gen1 , gen2 )
+
+		to_be_returned = { 'different_loci' : [] , 'total_unique_mutations' : np.sum( loci ) }
+
+		loci = loci.nonzero()
+
+		mutation_loci = np.vectorize( lambda locus : self.mutation_mapper[locus] )
+		to_be_returned['different_loci'] = mutation_loci( loci )
+
+		return to_be_returned
+
+	def draw ( self , ordering ):
+		plt.figure()
+		for g in ordering:
+			loc = g['location'][0]
+			plt.plot( [ loc ,loc ] , [ 1 , 0 ] , 'b' )
+			plt.text( loc , -0.002 , g['name'] , rotation = 90 , size = 'xx-small', horizontalalignment='center' )
+			l = self.mutated_loci( int( g['name'] ) )
+			for i in l:
+				plt.plot(loc, i, 'or')
+		plt.show()
+		pass
 
 
 

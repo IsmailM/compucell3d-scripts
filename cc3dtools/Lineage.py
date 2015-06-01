@@ -103,7 +103,7 @@ class Lineage:
         plt.ylabel( 'Division' )
         plt.title('Tree')
         plt.show()
-        print final_points
+        return final_points
 
     def plot( self , center , generation , width , final_points ):
         """
