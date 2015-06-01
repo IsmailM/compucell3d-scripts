@@ -34,7 +34,7 @@ steppableRegistry.registerSteppable(GrowthSteppableInstance)
         
 from DivisionTrackerPackage import DivisionTracker
 
-tracker = DivisionTracker(fileName='../division_output.csv')
+tracker = DivisionTracker(fileName='../division_output1615.csv')
 
 from DivisionTrackerSteppables import MitosisSteppable
 

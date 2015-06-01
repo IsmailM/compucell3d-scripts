@@ -6,7 +6,8 @@ import sys, os
 from PySteppablesExamples import MitosisSteppableBase
 
 ## allows us to import the cc3dtools built.
-pt = os.getcwd().split('/DivisionTracker/Simulation')[0]
+pt = os.getcwd().split('/DivisionTracker/Simulation')[0].split('CC3D_3.7.3')[0]+'summer15/compucell3d-scripts/'
+print '-->'+pt
 sys.path.append(pt)
 
 from cc3dtools.Genome import Genome, save_genomes
@@ -87,10 +88,11 @@ class MitosisSteppable(MitosisSteppableBase):
         self.trackerInstance.saveStash()
 
         for k, genome in enumerate(self.genomes):
-            print '-------      genome '+str(k)+'           ---------'
+            print '-------      genome ' + str(k) + '           ---------'
             print sorted(genome.get_mutated_loci())
 
-        save_genomes(self.genomes, file_name='../gendata.csv')
+        save_genomes( self.genomes , file_name = '../unaligned_gen_data1615.csv' , method = 'naive' )
+        save_genomes( self.genomes , file_name = '../aligned_gen_data1615.csv' , method = 'aligned' )
         pass
         
         
