@@ -94,16 +94,18 @@ class Lineage:
         return self.sub1.time
 
     def draw ( self, width ):
+        final_points = []
         plt.figure()
-        self.plot( 0 , self.num_descendants() , width )
+        self.plot( 0 , self.num_descendants() , width , final_points )
         plt.xticks( [] )
         plt.xlabel( 'Cells' )
         plt.yticks([])
         plt.ylabel( 'Division' )
         plt.title('Tree')
         plt.show()
+        return final_points
 
-    def plot( self , center , generation , width ):
+    def plot( self , center , generation , width , final_points ):
         """
             Plots the lineage and all its descending lineages. To avoid overlap when plotting
             multiple lineages, we specify the width and center of the lineage along the x-axis.
@@ -123,8 +125,8 @@ class Lineage:
         #plot horizontal line
         plt.plot( [ mid1 , mid2 ] , [ generation - 1 , generation - 1 ] , 'b' )
 
-        self.sub1.plot( mid1 , generation - 1 , w1 )
-        self.sub2.plot( mid2 , generation - 1 , w2 )
+        self.sub1.plot( mid1 , generation - 1 , w1 , final_points )
+        self.sub2.plot( mid2 , generation - 1 , w2 , final_points )
 
 
 
