@@ -1,5 +1,8 @@
 #### CODE SCAFFOLDING BY SIMON GRAVEL
 #### MODIFICATIONS BY ZAFARALI AHMED
+## Version 0 of cc3dtools
+## last updated June 2nd 2015
+## Contact author for upto date version
 from Individual import Individual
 import matplotlib.pyplot as plt
 
